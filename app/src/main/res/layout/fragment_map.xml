@@ -46,27 +46,61 @@
                     android:id="@+id/tvMarkerTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/thin_border"
+                    android:paddingTop="10sp"
+                    android:paddingBottom="15sp"
                     android:text="Marker Title"
                     android:textSize="24sp"
-                    android:textStyle="bold|italic"
-                    android:layout_marginTop="5dp"
-                    android:paddingTop="10sp"
-                    android:paddingBottom="40sp" />
+                    android:textStyle="bold|italic" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@color/steelblue"
+                        android:text="Confirm"
+                        android:textColor="@color/white" />
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/button2"
+                        style="@style/CustomButtonStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Deny"
+                        android:textColor="@color/steelblue" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tvMarkerDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/thin_border"
+                    android:padding="5dp"
+                    android:paddingBottom="10sp"
                     android:text="This text simulates the description of a marker and it should be fairly long."
-                    android:paddingBottom="10sp" />
+                    android:textSize="24sp" />
 
                 <TextView
-                    android:id="@+id/tvMarkerNrReports"
+                    android:id="@+id/textView2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="32 have reported seeing this"
-                    android:textSize="16sp"
-                    android:textStyle="italic" />
+                    android:text="Streetview might not be relevant" />
+
+                <ImageView
+                    android:id="@+id/markerImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/thin_border"
+                    android:src="@drawable/googleg_standard_color_18" />
+
             </LinearLayout>
         </ScrollView>
     </androidx.cardview.widget.CardView>
