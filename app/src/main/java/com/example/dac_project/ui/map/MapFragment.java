@@ -8,6 +8,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +28,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Callback;
 import android.util.DisplayMetrics;
 
 import com.example.dac_project.models.Coordinate;
@@ -98,23 +101,40 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         String size = screenWidth + "x500"; // Use the full screen width and a fixed height
 
         String apiKey = getString(R.string.google_maps_api_key); // Fetch API key from strings.xml
-        String baseUrl = "https://maps.googleapis.com/maps/api/streetview"; // Base URL for the Street View API
         String location = coordinate.lat + "," + coordinate.lng; // Combine latitude and longitude
-        String heading = "0"; // Optional: You can set the heading (direction of the camera)
-        String pitch = "0"; // Optional: You can set the pitch (up or down angle of the camera)
-        String fov = "90"; // Optional: Field of view (angle)
 
-        // Construct the URL for Street View
-        String streetViewUrl = baseUrl + "?size=" + size +
-                "&location=" + location +
-                "&heading=" + heading +
-                "&pitch=" + pitch +
-                "&fov=" + fov +
-                "&key=" + apiKey;
+        // Street View URL
+        String streetViewUrl = "https://maps.googleapis.com/maps/api/streetview?size=" + size +
+                "&location=" + location + "&key=" + apiKey;
 
-        // Load the Street View image into ImageView using Picasso
-        Picasso.get().load(streetViewUrl).into(markerImage);
+        // Attempt to load the Street View image
+        Picasso.get().load(streetViewUrl).into(markerImage, new Callback() {
+            @Override
+            public void onSuccess() {
+                // Check if the image is valid by inspecting its dimensions
+                if (markerImage.getDrawable() == null || markerImage.getDrawable().getIntrinsicWidth() == 0) {
+                    // Image is invalid, load static map instead
+                    loadStaticMapImage(location, size, apiKey);
+                }
+                // If it's a valid image, the ImageView will already have the Street View image loaded.
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // If Street View fails (or if the image is a fallback text), load a static map image as fallback
+                loadStaticMapImage(location, size, apiKey);
+            }
+        });
     }
+
+    private void loadStaticMapImage(String location, String size, String apiKey) {
+        // Load the static map image into ImageView
+        String staticMapUrl = "https://maps.googleapis.com/maps/api/staticmap?center=" + location +
+                "&zoom=14&size=" + size + "&key=" + apiKey;
+        Picasso.get().load(staticMapUrl).into(markerImage);
+    }
+
+
 
     private void hideCardView() {
         if (cardView != null) {
@@ -190,6 +210,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         coordinates.add(new Coordinate(45.764, 21.250, "Public Restroom Needs Cleaning", "The public restroom near the central park is in need of cleaning and maintenance.", 4));
         coordinates.add(new Coordinate(45.766, 21.251, "Lack of Recycling Bins", "There are no recycling bins along the downtown area, leading to recyclable waste being thrown into regular trash bins.", 3));
         coordinates.add(new Coordinate(45.768, 21.252, "Illegal Dumping", "Residents have reported seeing illegal dumping of construction materials near the old factory site.", 8));
+        coordinates.add(new Coordinate(45.749, 21.264, "Fallen tree", "A small tree has fallen and its blocking the pavement.", 6));
         return coordinates;
     }
 

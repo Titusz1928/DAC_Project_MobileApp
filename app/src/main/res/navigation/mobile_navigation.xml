@@ -32,10 +32,9 @@
         tools:layout="@layout/fragment_map" />
 
 
-        <!-- NOT USED-->
     <fragment
         android:id="@+id/nav_addevent"
-        android:name="com.example.dac_project.ui.slideshow.SlideshowFragment"
+        android:name="com.example.dac_project.ui.addevent.AddEventFragment"
         android:label="@string/menu_addevent"
-        tools:layout="@layout/fragment_slideshow" />
+        tools:layout="@layout/fragment_addevent" />
 </navigation>

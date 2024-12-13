@@ -17,4 +17,10 @@
 
 
     <string name="google_maps_api_key"></string>
+
+
+    <!--Home layout  -->
+
+
+    <string name="Hominfo"> Your gateway to a more connected and efficient urban experience. Stay informed and in control with real-time updates on everything happening in your city. Whether you\'re looking for the latest weather, traffic conditions, or upcoming events, we\'ve got you covered.</string>
 </resources>
