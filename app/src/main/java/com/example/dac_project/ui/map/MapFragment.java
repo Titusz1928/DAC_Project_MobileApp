@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
+import android.widget.EditText;
 
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.dac_project.R;
@@ -32,6 +34,11 @@ import com.squareup.picasso.Callback;
 import android.util.DisplayMetrics;
 
 import com.example.dac_project.models.Coordinate;
+import com.example.dac_project.managers.SearchManager;
+import com.example.dac_project.models.SearchResult;
+
+import android.os.Handler;
+
 
 
 import java.util.ArrayList;
@@ -51,6 +58,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private ImageView markerImage;
 
+    private SearchManager searchManager;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -72,11 +80,74 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         markerImage = root.findViewById(R.id.markerImage);
         cardView = root.findViewById(R.id.marker_card);
 
+        //search elements
+        EditText editTextSearch = root.findViewById(R.id.editTextSearch);
+        FloatingActionButton fabSearch = root.findViewById(R.id.fabSearch);
+
+
+        // Initialize the SearchManager
+        searchManager = new SearchManager(requireContext());
+
+        // Set up the search button click listener
+        fabSearch.setOnClickListener(v -> {
+            String query = editTextSearch.getText().toString().trim();
+            if (!query.isEmpty()) {
+                performSearch(query);
+            } else {
+                Toast.makeText(requireContext(), "Please enter a location to search.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // Hide card view initially
         hideCardView();
 
         return root;
     }
+
+    private void performSearch(String query) {
+        // Execute the search using SearchManager
+        searchManager.searchCoordinates(query, new SearchManager.SearchCallback() {
+            @Override
+            public void onResult(SearchResult result) {
+                if (result.isSuccess()) {
+                    LatLng location = result.getCoordinates();
+                    String address = result.getAddress();
+
+                    // Move the camera to the search location
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 14.0f));
+
+                    // Add a marker at the search location
+                    Marker marker = googleMap.addMarker(new MarkerOptions()
+                            .position(location)
+                            .title(address));
+
+                    // Show a message or update the UI
+                    Toast.makeText(requireContext(), "Search successful: " + address, Toast.LENGTH_SHORT).show();
+
+                    // Remove the marker after 3 seconds
+                    if (marker != null) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                marker.remove();
+                            }
+                        }, 3000); // 3000 milliseconds = 3 seconds
+                    }
+                } else {
+                    // Handle search failure
+                    Toast.makeText(requireContext(), "Not found", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // Handle error (optional)
+                Toast.makeText(requireContext(), "Search error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
 
     private void setCardViewHeight(float heightPercent, Coordinate coordinate) {
         if (cardView != null) {

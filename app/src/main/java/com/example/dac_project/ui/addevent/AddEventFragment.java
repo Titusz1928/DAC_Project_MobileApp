@@ -1,6 +1,7 @@
 package com.example.dac_project.ui.addevent;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +19,12 @@ import android.widget.EditText;
 import com.example.dac_project.R;
 import com.example.dac_project.databinding.FragmentAddeventBinding;
 import com.example.dac_project.databinding.FragmentMapBinding;
+import com.example.dac_project.managers.SearchManager;
 import com.example.dac_project.models.Coordinate;
+import com.example.dac_project.models.SearchResult;
 import com.example.dac_project.ui.map.MapViewModel;
+import com.example.dac_project.managers.SearchManager;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -28,6 +33,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Marker;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 
 public class AddEventFragment  extends Fragment implements OnMapReadyCallback {
@@ -51,6 +57,8 @@ public class AddEventFragment  extends Fragment implements OnMapReadyCallback {
 
 
     //private Button saveButton;
+
+    private SearchManager searchManager;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -80,6 +88,25 @@ public class AddEventFragment  extends Fragment implements OnMapReadyCallback {
         markerImage = root.findViewById(R.id.markerImage);
         cardView = root.findViewById(R.id.marker_card);*/
 
+
+
+        EditText editTextSearch = root.findViewById(R.id.editTextSearch);
+        FloatingActionButton fabSearch = root.findViewById(R.id.fabSearch);
+
+
+        // Initialize the SearchManager
+        searchManager = new SearchManager(requireContext());
+
+        // Set up the search button click listener
+        fabSearch.setOnClickListener(v -> {
+            String query = editTextSearch.getText().toString().trim();
+            if (!query.isEmpty()) {
+                performSearch(query);
+            } else {
+                Toast.makeText(requireContext(), "Please enter a location to search.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // Hide card view initially
         hideCardView();
 
@@ -94,6 +121,49 @@ public class AddEventFragment  extends Fragment implements OnMapReadyCallback {
         });
 
         return root;
+    }
+
+    private void performSearch(String query) {
+        // Execute the search using SearchManager
+        searchManager.searchCoordinates(query, new SearchManager.SearchCallback() {
+            @Override
+            public void onResult(SearchResult result) {
+                if (result.isSuccess()) {
+                    LatLng location = result.getCoordinates();
+                    String address = result.getAddress();
+
+                    // Move the camera to the search location
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 14.0f));
+
+                    // Add a marker at the search location
+                    Marker marker = googleMap.addMarker(new MarkerOptions()
+                            .position(location)
+                            .title(address));
+
+                    // Show a message or update the UI
+                    Toast.makeText(requireContext(), "Search successful: " + address, Toast.LENGTH_SHORT).show();
+
+                    // Remove the marker after 3 seconds
+                    if (marker != null) {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                marker.remove();
+                            }
+                        }, 3000); // 3000 milliseconds = 3 seconds
+                    }
+                } else {
+                    // Handle search failure
+                    Toast.makeText(requireContext(), "Not found", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                // Handle error (optional)
+                Toast.makeText(requireContext(), "Search error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 
