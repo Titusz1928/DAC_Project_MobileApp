@@ -1,6 +1,7 @@
 package com.example.dac_project.ui.home;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,18 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.w3c.dom.Text;
 
+import org.json.JSONObject;
+import org.json.JSONArray;
+
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.LineGraphSeries;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+import com.jjoe64.graphview.helper.StaticLabelsFormatter;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
@@ -38,6 +51,8 @@ public class HomeFragment extends Fragment {
     private View llInfoCardView;
 
     private View weatherCardView;
+
+    public GraphView graph;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -69,12 +84,15 @@ public class HomeFragment extends Fragment {
         infoCardContent = root.findViewById(R.id.icvDescriptionTextView);  // Content to hide/show
         buttonsLayout = root.findViewById(R.id.expansion_panel_buttons);
         weatherText = root.findViewById(R.id.weather_textview);
+        graph = root.findViewById(R.id.weather_graph);
 
         // Initially, hide the content inside the card
 
         infoCardContent.setVisibility(View.GONE);
         buttonsLayout.setVisibility(View.GONE);
         weatherText.setVisibility(View.GONE);
+        graph.setVisibility(View.GONE);
+
 
         // Set an OnClickListener for the info card
         llInfoCardView.setOnClickListener(v -> toggleCardVisibility());
@@ -132,33 +150,88 @@ public class HomeFragment extends Fragment {
     }
 
     private void expandWeatherCard() {
+
         weatherText.setVisibility(View.VISIBLE);
+        graph.setVisibility(View.VISIBLE);
     }
 
     // Collapse the card content
     private void collapseWeaterCard() {
+
         weatherText.setVisibility(View.GONE);
+        graph.setVisibility(View.GONE);
     }
 
 
     private void fetchWeatherData() {
-        // You need to replace this URL with a real weather API endpoint
+        // Define the API URL
         String weatherApiUrl = "https://api.open-meteo.com/v1/forecast?latitude=45.7537&longitude=21.2257&hourly=temperature_2m&forecast_days=1";
 
-        // Create RestTemplate instance
+        // Run the network request on a background thread
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            String response = fetchWeatherDataFromApi(weatherApiUrl);
+
+            // Switch back to the main thread to update UI
+            getActivity().runOnUiThread(() -> {
+                if (response != null) {
+                    updateGraphWithWeatherData(response);
+                } else {
+                    weatherText.setText("Failed to fetch weather data.");
+                }
+            });
+        });
+    }
+
+    private String fetchWeatherDataFromApi(String url) {
         RestTemplate restTemplate = new RestTemplate();
-
-        // Make the API call and get the response
         try {
-            ResponseEntity<String> response = restTemplate.getForEntity(weatherApiUrl, String.class);
-            String responseBody = response.getBody();
+            // Make the API call and get the response
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            return response.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;  // Return null in case of error
+        }
+    }
 
-            // For simplicity, let's assume the response is just a temperature (you can modify it to parse actual JSON response)
-            // Here, you can parse the responseBody (JSON) and get the weather data, e.g., temperature, weather condition
+    private void updateGraphWithWeatherData(String responseBody) {
+        try {
+            // Parse the JSON response
+            JSONObject jsonResponse = new JSONObject(responseBody);
+            JSONObject hourlyData = jsonResponse.getJSONObject("hourly");
+            JSONArray timeArray = hourlyData.getJSONArray("time");
+            JSONArray temperatureArray = hourlyData.getJSONArray("temperature_2m");
 
-            // Set weather text
-            weatherText.setText("Weather: " + responseBody);  // Display the raw response, modify based on actual response format
+            // Prepare the data for the graph
+            LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
 
+            // Loop through the temperatures and add them to the graph series
+            for (int i = 0; i < temperatureArray.length(); i++) {
+                double timeInHours = i; // Using index as the x-axis value (time in hours)
+                double temperature = temperatureArray.getDouble(i); // Get the temperature for that hour
+                series.appendData(new DataPoint(timeInHours, temperature), true, temperatureArray.length());
+            }
+
+            // Add the series to the graph
+            graph.addSeries(series);
+
+            // Set the Y-Axis title (Celsius)
+            graph.getViewport().setYAxisBoundsManual(true);
+            graph.getGridLabelRenderer().setVerticalAxisTitle("°C");
+
+            // Set the X-Axis to 24 units long and label it with hours
+            graph.getViewport().setXAxisBoundsManual(true);
+            graph.getViewport().setMinX(0);
+            graph.getViewport().setMaxX(24);  // Set max X to 24 to include 24:00
+
+            // Customizing X-Axis labels to show every 4 hours (0, 4, 8, 12, 16, 20, 24)
+            StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graph);
+
+
+
+            // Optionally set weather text for other UI updates
+            weatherText.setText("Weather for today:");
         } catch (Exception e) {
             weatherText.setText("Failed to fetch weather data.");
             e.printStackTrace();

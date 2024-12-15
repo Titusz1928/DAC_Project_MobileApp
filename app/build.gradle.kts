@@ -53,6 +53,7 @@ dependencies {
     implementation("com.squareup.picasso:picasso:2.8")
     implementation("com.google.android.libraries.places:places:3.1.0")
     implementation("org.springframework:spring-web:5.3.11")
+    implementation("com.jjoe64:graphview:4.2.2")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
