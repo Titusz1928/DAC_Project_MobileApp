@@ -22,6 +22,8 @@ import com.example.dac_project.databinding.FragmentHomeBinding;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +54,13 @@ public class HomeFragment extends Fragment {
 
     private View weatherCardView;
 
+    private View scoreCardView;
+
+    private TextView scoreText;
+    private TextView taxReductionText;
+
     public GraphView graph;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -77,14 +85,19 @@ public class HomeFragment extends Fragment {
         // Set the formatted time to the TextView
         currentTimeTV.setText("Current time in Timisoara:\n "+currentTime);
 
+
         // Find the views for the expandable card
         llInfoCardView = root.findViewById(R.id.llInfoCardView);
         weatherCardView = root.findViewById(R.id.weather_card_view);
+        scoreCardView = root.findViewById(R.id.score_card_view);
 
         infoCardContent = root.findViewById(R.id.icvDescriptionTextView);  // Content to hide/show
         buttonsLayout = root.findViewById(R.id.expansion_panel_buttons);
         weatherText = root.findViewById(R.id.weather_textview);
         graph = root.findViewById(R.id.weather_graph);
+        scoreText = root.findViewById(R.id.score_text);
+        taxReductionText = root.findViewById(R.id.tax_reduction_text);
+
 
         // Initially, hide the content inside the card
 
@@ -92,11 +105,16 @@ public class HomeFragment extends Fragment {
         buttonsLayout.setVisibility(View.GONE);
         weatherText.setVisibility(View.GONE);
         graph.setVisibility(View.GONE);
-
+        scoreText.setVisibility(View.GONE);
+        taxReductionText.setVisibility(View.GONE);
 
         // Set an OnClickListener for the info card
-        llInfoCardView.setOnClickListener(v -> toggleCardVisibility());
-        weatherCardView.setOnClickListener(v->toggleWeatherCardVisibility());
+        llInfoCardView.setOnClickListener(v ->
+                toggleCardVisibility(infoCardContent, buttonsLayout));
+        weatherCardView.setOnClickListener(v ->
+                toggleCardVisibility(weatherText, graph));
+        scoreCardView.setOnClickListener(v ->
+                toggleCardVisibility(scoreText, taxReductionText));
 
         // Set an OnClickListener for the entire fragment to close the card when clicking elsewhere
         root.setOnClickListener(v -> collapseCard());
@@ -120,46 +138,27 @@ public class HomeFragment extends Fragment {
         return root;
     }
 
-    // Method to toggle the card visibility
-    private void toggleCardVisibility() {
-        if (infoCardContent.getVisibility() == View.VISIBLE) {
-            collapseCard();
+
+    private void toggleCardVisibility(View... views) {
+        if (views[0].getVisibility() == View.VISIBLE) {
+            collapseCard(views);
         } else {
-            expandCard();
+            expandCard(views);
         }
     }
 
-    private void toggleWeatherCardVisibility() {
-        if (weatherText.getVisibility() == View.VISIBLE) {
-            collapseWeaterCard();
-        } else {
-            expandWeatherCard();
+
+    private void expandCard(View... views) {
+        for (View view : views) {
+            view.setVisibility(View.VISIBLE);
         }
     }
 
-    // Expand the card content
-    private void expandCard() {
-        infoCardContent.setVisibility(View.VISIBLE);
-        buttonsLayout.setVisibility(View.VISIBLE);
-    }
-
-    // Collapse the card content
-    private void collapseCard() {
-        infoCardContent.setVisibility(View.GONE);
-        buttonsLayout.setVisibility(View.GONE);
-    }
-
-    private void expandWeatherCard() {
-
-        weatherText.setVisibility(View.VISIBLE);
-        graph.setVisibility(View.VISIBLE);
-    }
-
-    // Collapse the card content
-    private void collapseWeaterCard() {
-
-        weatherText.setVisibility(View.GONE);
-        graph.setVisibility(View.GONE);
+    // Generic function to collapse a card by making its views gone
+    private void collapseCard(View... views) {
+        for (View view : views) {
+            view.setVisibility(View.GONE);
+        }
     }
 
 

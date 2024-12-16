@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.util.Log;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -35,6 +36,12 @@ import com.google.android.gms.maps.model.Marker;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
+
+
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 
 public class AddEventFragment  extends Fragment implements OnMapReadyCallback {
 
@@ -168,23 +175,58 @@ public class AddEventFragment  extends Fragment implements OnMapReadyCallback {
 
 
     private void sendEventData(String latitude, String longitude, String title, String description) {
-        // Convert latitude and longitude to double
+        // Parse latitude and longitude
         double lat = Double.parseDouble(latitude);
         double lng = Double.parseDouble(longitude);
 
-        // Create an object to hold the event data
-        Coordinate eventData = new Coordinate(lat, lng, title, description, 0);
+        // Create a Coordinate object
+        Coordinate eventData = new Coordinate(lat, lng, title, description, 1);
 
-        // Convert the object to JSON format using Gson
+        // Convert the object to JSON using Gson
         Gson gson = new Gson();
         String jsonData = gson.toJson(eventData);
 
-        // Simulate sending the JSON data to an API by displaying it in a Toast or log
-        Toast.makeText(getContext(), "Sending data: " + jsonData, Toast.LENGTH_LONG).show();
+        // Log the JSON data for debugging
         Log.d("SendEventData", "Sending data: " + jsonData);
+
+        // Create a new thread for network operations
+        new Thread(() -> {
+            try {
+                RestTemplate restTemplate = new RestTemplate();
+
+                // Set the target URL
+                String url = getString(R.string.cloud_api_url) + "/addmarker";
+
+                // Set the Content-Type header to application/json
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+
+                // Wrap the JSON data and headers in an HttpEntity
+                HttpEntity<String> request = new HttpEntity<>(jsonData, headers);
+
+                // Send the POST request
+                ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+                // Handle the response
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    Log.d("SendEventData", "Data sent successfully: " + response.getBody());
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    handler.post(() -> Toast.makeText(getContext(), "Data sent successfully!", Toast.LENGTH_SHORT).show());
+                } else {
+                    Log.e("SendEventData", "Failed to send data. Status code: " + response.getStatusCode());
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    handler.post(() -> Toast.makeText(getContext(), "Failed to send data!", Toast.LENGTH_SHORT).show());
+                }
+            } catch (Exception e) {
+                Log.e("SendEventData", "Error sending data", e);
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(() -> Toast.makeText(getContext(), "Error sending data: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            }
+        }).start();
         hideMarker();
         hideCardView();
     }
+
 
 
     @Override

@@ -39,9 +39,15 @@ import com.example.dac_project.models.SearchResult;
 
 import android.os.Handler;
 
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
@@ -262,7 +268,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     // Simulated API response
-    private List<Coordinate> fetchCoordinatesFromApi() {
+/*    private List<Coordinate> fetchCoordinatesFromApi() {
         List<Coordinate> coordinates = new ArrayList<>();
         // Simulate adding some data
         coordinates.add(new Coordinate(45.759, 21.234, "Street Light Outage", "The street light on the corner of Main St. and 3rd Ave. is not working at night.", 5));
@@ -282,6 +288,51 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         coordinates.add(new Coordinate(45.766, 21.251, "Lack of Recycling Bins", "There are no recycling bins along the downtown area, leading to recyclable waste being thrown into regular trash bins.", 3));
         coordinates.add(new Coordinate(45.768, 21.252, "Illegal Dumping", "Residents have reported seeing illegal dumping of construction materials near the old factory site.", 8));
         coordinates.add(new Coordinate(45.749, 21.264, "Fallen tree", "A small tree has fallen and its blocking the pavement.", 6));
+        return coordinates;
+    }*/
+
+    private List<Coordinate> fetchCoordinatesFromApi() {
+        List<Coordinate> coordinates = new ArrayList<>();
+
+        // Create a thread for network operations
+        Thread thread = new Thread(() -> {
+            try {
+                // Initialize RestTemplate
+                RestTemplate restTemplate = new RestTemplate();
+
+                // Define the target URL (replace with your server's actual URL)
+                String url = getString(R.string.cloud_api_url) + "/getmarkers";
+
+                // Make a GET request and retrieve the response as a JSON array
+                ResponseEntity<Coordinate[]> response = restTemplate.getForEntity(url, Coordinate[].class);
+
+                // Check if the response is successful
+                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                    // Convert the JSON array to a list
+                    List<Coordinate> fetchedCoordinates = Arrays.asList(response.getBody());
+
+                    // Add the fetched coordinates to the list
+                    synchronized (coordinates) {
+                        coordinates.addAll(fetchedCoordinates);
+                    }
+
+                    Log.d("FetchCoordinates", "Coordinates fetched successfully: " + fetchedCoordinates.size());
+                } else {
+                    Log.e("FetchCoordinates", "Failed to fetch coordinates. Status code: " + response.getStatusCode());
+                }
+            } catch (Exception e) {
+                Log.e("FetchCoordinates", "Error fetching coordinates", e);
+            }
+        });
+
+        // Start the thread and wait for it to complete
+        thread.start();
+        try {
+            thread.join(); // Wait for the thread to finish
+        } catch (InterruptedException e) {
+            Log.e("FetchCoordinates", "Thread interrupted", e);
+        }
+
         return coordinates;
     }
 
