@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<ScrollView
+    android:id="@+id/REG_ScrollView"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/svMainCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:paddingBottom="50dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/mcvConstraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/blue_background_city">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/mcvTopCardView"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                app:layout_constraintBottom_toTopOf="@+id/mcvInputFieldCardView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/tcvConstraintLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/tcvTitleText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Registration"
+                        android:textColor="@color/colorTextPrimary"
+                        android:textSize="34sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+
+
+                        app:layout_constraintHorizontal_bias="0.197"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.506" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/mcvInputFieldCardView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHeight_percent="0.7"
+                app:layout_constraintHorizontal_bias="0.487"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/mcvTopCardView"
+                app:layout_constraintWidth_percent="0.9">
+
+
+                <TableLayout
+                    android:id="@+id/nsvTableLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TableRow
+                        android:id="@+id/tlEmailRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tlEmailTextInputLayout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@color/white"
+                            android:paddingLeft="5dp"
+                            android:paddingBottom="10dp">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/tilEmail"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:backgroundTint="@color/white"
+
+                                android:hint="Your Email"
+                                android:inputType="textEmailAddress"
+                                android:textColor="@color/colorTextPrimary"
+                                android:textColorHint="@color/colorTextSecondary" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <Space android:layout_weight="1">
+
+                        </Space>
+
+                    </TableRow>
+
+
+                    <TableRow
+                        android:id="@+id/tlNumeRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingTop="0dp"
+                        android:paddingBottom="10dp">
+
+                        <EditText
+                            android:id="@+id/tlNumeEditText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/white_subtle_border"
+                            android:ems="10"
+                            android:hint="Your Last Name"
+                            android:inputType="text"
+                            android:padding="15dp"
+                            android:textColorHint="@color/colorTextSecondary" />
+
+                        <Space android:layout_weight="1">
+
+                        </Space>
+
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/tlPrenumeRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp">
+
+                        <EditText
+                            android:id="@+id/tlPrenumeEditText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@drawable/white_subtle_border"
+                            android:ems="10"
+                            android:hint="Your First Name"
+                            android:inputType="text"
+                            android:padding="15dp"
+                            android:textColorHint="@color/colorTextSecondary" />
+
+                        <Space android:layout_weight="1">
+
+                        </Space>
+
+
+                    </TableRow>
+
+
+                    <TableRow
+                        android:id="@+id/tlCNPRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp">
+
+                        <EditText
+                            android:id="@+id/tlCNPEditText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@drawable/white_subtle_border"
+                            android:ems="10"
+                            android:hint="Your CNP"
+                            android:inputType="number"
+                            android:padding="15dp"
+                            android:textColorHint="@color/colorTextSecondary" />
+
+                        <Space android:layout_weight="1">
+
+                        </Space>
+
+
+                    </TableRow>
+
+
+
+                    <TableRow
+                        android:id="@+id/tlButtonRegistrationRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="20dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp">
+
+                        <Button
+                            android:id="@+id/REGifcvRegistrationButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="65dp"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"
+                            android:backgroundTint="@color/teal_700"
+                            android:text="REGISTER"
+                            android:textColor="@color/white"
+                            android:textSize="20sp"
+                            app:cornerRadius="5dp" />
+
+
+                    </TableRow>
+
+                    <TableRow
+                        android:id="@+id/tlButtonBackRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp">
+
+                        <Button
+                            android:id="@+id/REGifcvBackButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="65dp"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"
+                            android:backgroundTint="@color/foreground"
+                            android:text="CANCEL"
+                            android:textColor="@color/teal_700"
+                            android:textSize="16sp" />
+
+
+                    </TableRow>
+
+
+                </TableLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginTop="20dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/mcvInputFieldCardView" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.cardview.widget.CardView>
+</ScrollView>
