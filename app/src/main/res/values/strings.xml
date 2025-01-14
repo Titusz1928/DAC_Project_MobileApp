@@ -17,7 +17,7 @@
 
 
     <string name="google_maps_api_key"></string>
-    <string name="cloud_api_url"></string>
+    <string name="cloud_api_url">http://192.168.1.247:4000</string>
 
 
     <!--Home layout  -->
